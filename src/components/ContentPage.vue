@@ -49,7 +49,6 @@
   </main>
 </template>
 
-
 <script>
 export default {
   name: 'ContentPage',
@@ -94,9 +93,7 @@ export default {
       this.newTodoText = '';
     },
     editNote(note) {
-      // this.currentNote = { ...note }; // Создаем виртуальную копию заметки для редактирования
-      // this.modalVisible = true;
-      this.currentNote = JSON.parse(JSON.stringify(note)); // Создаем виртуальную копию заметки для редактирования
+      this.currentNote = JSON.parse(JSON.stringify(note)); 
       this.modalVisible = true;
     },
     updateNote() {
@@ -106,22 +103,13 @@ export default {
         this.currentNote = null;
         this.modalVisible = false;
         this.saveNotes();
-        // const index = this.notes.findIndex(note => note.id === this.currentNote.id);
-        // if (index !== -1) {
-        //   this.notes.splice(index, 1, this.currentNote); // Заменяем существующую заметку новой
-        //   this.currentNote = null;
-        //   this.modalVisible = false;
-        //   this.saveNotes();
       }
     },
     cancelEdit() {
-      //this.currentNote = null; // Очищаем текущую заметку при отмене редактирования
-      //this.modalVisible = false;
       this.confirmModalVisible = true;
-      //this.currentNote = null;
     },
     confirmCancel() {
-      this.currentNote = null; // Очищаем текущую заметку при отмене редактирования
+      this.currentNote = null; 
       this.modalNewNoteVisible = false;
       this.confirmModalVisible = false;
       this.modalVisible = false;
@@ -136,19 +124,12 @@ export default {
       this.notes.push(this.currentNote);
       this.modalNewNoteVisible = false;
       this.saveNotes();
-      // this.notes.push(this.currentNote);
-      // this.modalNewNoteVisible = false;
-      // this.saveNotes();
     },
     loadFromLocalStorage() {
       const savedNotes = localStorage.getItem('notes');
       if (savedNotes) {
         this.notes = JSON.parse(savedNotes);
       }
-      // const savedNotes = localStorage.getItem('notes');
-      // if (savedNotes) {
-      //   this.notes = JSON.parse(savedNotes);
-      // }
     }
   },
   computed: {
