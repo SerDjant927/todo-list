@@ -49,6 +49,7 @@
   </main>
 </template>
 
+
 <script>
 export default {
   name: 'ContentPage',
@@ -78,36 +79,49 @@ export default {
       }
     },
     deleteTempTodo(todo) {
-      const index = this.currentNote.todos.indexOf(todo);
-      this.currentNote.todos.splice(index, 1);
+      const index = this.currentNote.todos.findIndex(t => t.id === todo.id);
+      if (index !== -1) {
+        this.currentNote.todos.splice(index, 1);
+      }
     },
-
     createNote() {
       this.modalNewNoteVisible = true;
       this.currentNote = {
+        id: Date.now(),
         name: '',
         todos: []
       };
       this.newTodoText = '';
     },
     editNote(note) {
-      this.currentNote = { ...note };
-      this.currentNote.todos = [...note.todos];
-      console.log(this.currentNoteTempTodos);
+      // this.currentNote = { ...note }; // Создаем виртуальную копию заметки для редактирования
+      // this.modalVisible = true;
+      this.currentNote = JSON.parse(JSON.stringify(note)); // Создаем виртуальную копию заметки для редактирования
       this.modalVisible = true;
     },
     updateNote() {
       const index = this.notes.findIndex(note => note.id === this.currentNote.id);
-      this.notes[index].todos = this.currentNote.todos;
-      this.currentNote = null;
-      this.modalVisible = false;
-      this.saveNotes();
+      if (index !== -1) {
+        this.notes.splice(index, 1, this.currentNote);
+        this.currentNote = null;
+        this.modalVisible = false;
+        this.saveNotes();
+        // const index = this.notes.findIndex(note => note.id === this.currentNote.id);
+        // if (index !== -1) {
+        //   this.notes.splice(index, 1, this.currentNote); // Заменяем существующую заметку новой
+        //   this.currentNote = null;
+        //   this.modalVisible = false;
+        //   this.saveNotes();
+      }
     },
     cancelEdit() {
+      //this.currentNote = null; // Очищаем текущую заметку при отмене редактирования
+      //this.modalVisible = false;
       this.confirmModalVisible = true;
+      //this.currentNote = null;
     },
     confirmCancel() {
-      this.currentNote.todos = this.currentNoteTempTodos;
+      this.currentNote = null; // Очищаем текущую заметку при отмене редактирования
       this.modalNewNoteVisible = false;
       this.confirmModalVisible = false;
       this.modalVisible = false;
@@ -121,19 +135,22 @@ export default {
     saveNewNote() {
       this.notes.push(this.currentNote);
       this.modalNewNoteVisible = false;
-      this.saveToLocalStorage();
-    },
-    saveToLocalStorage() {
-      localStorage.setItem('notes', JSON.stringify(this.notes));
+      this.saveNotes();
+      // this.notes.push(this.currentNote);
+      // this.modalNewNoteVisible = false;
+      // this.saveNotes();
     },
     loadFromLocalStorage() {
       const savedNotes = localStorage.getItem('notes');
       if (savedNotes) {
         this.notes = JSON.parse(savedNotes);
       }
+      // const savedNotes = localStorage.getItem('notes');
+      // if (savedNotes) {
+      //   this.notes = JSON.parse(savedNotes);
+      // }
     }
   },
-
   computed: {
     filteredNotes() {
       return this.notes.filter(note => note.todos.length > 0);
@@ -144,6 +161,7 @@ export default {
   }
 };
 </script>
+
 
 <style scoped>
 .main {
@@ -274,7 +292,8 @@ ul {
   -webkit-box-shadow: 0px 0px 5px 5px rgba(34, 60, 80, 0.2);
   -moz-box-shadow: 0px 0px 5px 5px rgba(34, 60, 80, 0.2);
   box-shadow: 0px 0px 5px 5px rgba(34, 60, 80, 0.2);
-
+  max-height: 400px;
+  overflow: auto;
 }
 
 ul li {
@@ -297,7 +316,8 @@ input[type="checkbox"] {
 
 li label {
   cursor: pointer;
-  display: flex;
+  display: grid;
+  grid-template-columns: 22px 1fr;
   align-items: center;
   font-size: 16px;
   line-height: 1.2;
