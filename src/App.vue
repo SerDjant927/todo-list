@@ -1,35 +1,28 @@
 <template>
   <div id="app">
-    <ContentPage />
+    <ContentPage/>
   </div>
 </template>
 
-<script>
-import ContentPage from './components/ContentPage.vue'
+<script lang="ts">
+import { Component, Vue } from 'vue-property-decorator'
+import ContentPage from './components/ContentPage.vue';
 
-export default {
-  name: 'App',
+@Component({
   components: {
     ContentPage
-  }
-}
+  },
+})
+export default class App extends Vue {}
 </script>
 
 <style>
-html, body{
-  margin: 0;
-  padding: 0;
-}
-body *{
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+  margin-top: 60px;
 }
 </style>

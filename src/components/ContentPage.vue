@@ -49,99 +49,120 @@
   </main>
 </template>
 
-<script>
-export default {
-  name: 'ContentPage',
-  data() {
-    return {
-      modalVisible: false,
-      modalNewNoteVisible: false,
-      confirmModalVisible: false,
-      newNoteName: '',
-      newTodoText: '',
-      notes: JSON.parse(localStorage.getItem('notes')) || [],
-      currentNote: null
-    };
-  },
-  methods: {
-    openModal() {
-      this.modalVisible = true;
-    },
-    addTodo() {
-      if (this.newTodoText.trim() !== '') {
-        this.currentNote.todos.push({
-          id: Date.now(),
-          text: this.newTodoText,
-          completed: false
-        });
-        this.newTodoText = '';
-      }
-    },
-    deleteTempTodo(todo) {
-      const index = this.currentNote.todos.findIndex(t => t.id === todo.id);
-      if (index !== -1) {
-        this.currentNote.todos.splice(index, 1);
-      }
-    },
-    createNote() {
-      this.modalNewNoteVisible = true;
-      this.currentNote = {
+<script lang="ts">
+import { Vue, Component } from 'vue-property-decorator';
+
+interface Todo {
+  id: number;
+  text: string;
+  completed: boolean;
+}
+
+interface Note {
+  id: number;
+  name: string;
+  todos: Todo[];
+}
+
+@Component
+export default class ContentPage extends Vue {
+  modalVisible: boolean = false;
+  modalNewNoteVisible: boolean = false;
+  confirmModalVisible: boolean = false;
+  newNoteName: string = '';
+  newTodoText: string = '';
+  notes: Note[] = JSON.parse(localStorage.getItem('notes')) || [];
+  currentNote: Note | null = null;
+
+  openModal(): void {
+    this.modalVisible = true;
+  }
+
+  addTodo(): void {
+    if (this.newTodoText.trim() !== '') {
+      this.currentNote!.todos.push({
         id: Date.now(),
-        name: '',
-        todos: []
-      };
+        text: this.newTodoText,
+        completed: false
+      });
       this.newTodoText = '';
-    },
-    editNote(note) {
-      this.currentNote = JSON.parse(JSON.stringify(note)); 
-      this.modalVisible = true;
-    },
-    updateNote() {
-      const index = this.notes.findIndex(note => note.id === this.currentNote.id);
-      if (index !== -1) {
-        this.notes.splice(index, 1, this.currentNote);
-        this.currentNote = null;
-        this.modalVisible = false;
-        this.saveNotes();
-      }
-    },
-    cancelEdit() {
-      this.confirmModalVisible = true;
-    },
-    confirmCancel() {
-      this.currentNote = null; 
-      this.modalNewNoteVisible = false;
-      this.confirmModalVisible = false;
+    }
+  }
+
+  deleteTempTodo(todo: Todo): void {
+    const index = this.currentNote!.todos.findIndex(t => t.id === todo.id);
+    if (index !== -1) {
+      this.currentNote!.todos.splice(index, 1);
+    }
+  }
+
+  createNote(): void {
+    this.modalNewNoteVisible = true;
+    this.currentNote = {
+      id: Date.now(),
+      name: '',
+      todos: []
+    };
+    this.newTodoText = '';
+  }
+
+  editNote(note: Note): void {
+    this.currentNote = JSON.parse(JSON.stringify(note));
+    this.modalVisible = true;
+  }
+
+  updateNote(): void {
+    const index = this.notes.findIndex(note => note.id === this.currentNote!.id);
+    if (index !== -1) {
+      this.notes.splice(index, 1, this.currentNote!);
+      this.currentNote = null;
       this.modalVisible = false;
-    },
-    closeConfirmModal() {
-      this.confirmModalVisible = false;
-    },
-    saveNotes() {
-      localStorage.setItem('notes', JSON.stringify(this.notes));
-    },
-    saveNewNote() {
-      this.notes.push(this.currentNote);
-      this.modalNewNoteVisible = false;
       this.saveNotes();
-    },
-    loadFromLocalStorage() {
-      const savedNotes = localStorage.getItem('notes');
-      if (savedNotes) {
-        this.notes = JSON.parse(savedNotes);
-      }
     }
-  },
-  computed: {
-    filteredNotes() {
-      return this.notes.filter(note => note.todos.length > 0);
+  }
+
+  cancelEdit(): void {
+    this.confirmModalVisible = true;
+  }
+
+  confirmCancel(): void {
+    this.currentNote = null;
+    this.modalNewNoteVisible = false;
+    this.confirmModalVisible = false;
+    this.modalVisible = false;
+  }
+
+  closeConfirmModal(): void {
+    this.confirmModalVisible = false;
+  }
+
+  saveNotes(): void {
+    localStorage.setItem('notes', JSON.stringify(this.notes));
+  }
+
+  saveNewNote(): void {
+    this.notes.push(this.currentNote!);
+    this.modalNewNoteVisible = false;
+    this.saveNotes();
+  }
+
+  loadFromLocalStorage(): void {
+    const savedNotes = localStorage.getItem('notes');
+    if (savedNotes) {
+      this.notes = JSON.parse(savedNotes);
     }
-  },
-  mounted() {
+  }
+
+  get filteredNotes(): Note[] {
+    return this.notes.filter(note => note.todos.length > 0);
+  }
+
+  mounted(): void {
     this.loadFromLocalStorage();
   }
-};
+}
 </script>
+
 
 
 <style scoped>
