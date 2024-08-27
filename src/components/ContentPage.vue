@@ -1,79 +1,34 @@
 <template>
   <main class="main">
-    <h1 class="title">Мои заметки</h1>
-    <button class="create-button button" @click="createNote">Создать новую заметку</button>
-    <div v-for="note in filteredNotes" :key="note.id" class="note">
-      <h2>{{ note.name }}</h2>
-      <ul>
-        <li v-for="todo in note.todos" :key="todo.id">
-          <input type="checkbox" :id="todo.id" v-model="todo.completed">
-          <label :for="todo.id">{{ todo.text }}</label>
-        </li>
-      </ul>
-      <button class="button button_edit" @click="editNote(note)">Редактировать</button>
-    </div>
-    <div class="modal" v-if="modalNewNoteVisible">
-      <input type="text" v-model="currentNote.name" placeholder="Название заметки" class="input-field">
-      <ul v-if="currentNote.todos.length > 0">
-        <li v-for="todo in currentNote.todos" :key="todo.id">
-          <input class="input-field" type="checkbox" :id="todo.id" v-model="todo.completed">
-          <label :for="todo.id">{{ todo.text }}</label>
-          <button class="button" @click="deleteTempTodo(todo)">Удалить</button>
-        </li>
-      </ul>
-      <input type="text" placeholder="Добавить дело" v-model="newTodoText" class="input-field">
-      <button @click="addTodo" class="button">Добавить дело</button>
-      <button @click="saveNewNote" class="button">Сохранить</button>
-      <button @click="cancelEdit" class="button">Отменить изменение</button>
-    </div>
-    <div v-if="modalVisible" class="modal">
-      <input class="input-field" type="text" v-model="currentNote.name" placeholder="Название заметки">
-      <ul>
-        <li v-for="todo in currentNote.todos" :key="todo.id">
-          <input class="input-field" type="checkbox" :id="todo.id" v-model="todo.completed">
-          <label :for="todo.id">{{ todo.text }}</label>
-          <button class="button" @click="deleteTempTodo(todo)">Удалить</button>
-        </li>
-      </ul>
-      <input class="input-field" type="text" placeholder="Добавить дело" v-model="newTodoText">
-      <button class="button" @click="addTodo">Добавить дело</button>
-      <button class="button" @click="updateNote">Сохранить</button>
-      <button class="button" @click="cancelEdit">Отменить редактирование</button>
-    </div>
-    <div v-if="confirmModalVisible" class="modal modal_cancel">
-      <h2>Отменить редактирование?</h2>
-      <button class="button" @click="confirmCancel">Да</button>
-      <button class="button" @click="closeConfirmModal">Нет</button>
-    </div>
+    <NoteList :notes="notes" :filteredNotes="filteredNotes" :editNote="editNote" :createNote="createNote" />
+    <NoteModal :modalVisible="modalVisible" :currentNote="currentNote" :newTodoText="newTodoText" :addTodo="addTodo"
+      :saveNote="updateNote" :deleteTempTodo="deleteTempTodo" :cancelEdit="cancelEdit" />
+    <ConfirmModal :confirmModalVisible="confirmModalVisible" :confirmCancel="confirmCancel"
+      :closeConfirmModal="closeConfirmModal" />
     <div class="modal-bg"></div>
   </main>
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator';
-
-interface Todo {
-  id: number;
-  text: string;
-  completed: boolean;
-}
-
-interface Note {
-  id: number;
-  name: string;
-  todos: Todo[];
-}
-
-@Component
+import { Vue, Component } from 'vue-property-decorator'
+import NoteList from './NoteList.vue'
+import NoteModal from './NoteModal.vue'
+import ConfirmModal from './ConfirmModal.vue'
+import { Note, Todo } from './types'
+@Component({
+  components: {
+    NoteList,
+    NoteModal,
+    ConfirmModal
+  }
+})
 export default class ContentPage extends Vue {
   modalVisible: boolean = false;
   modalNewNoteVisible: boolean = false;
   confirmModalVisible: boolean = false;
-  newNoteName: string = '';
   newTodoText: string = '';
-  notes: Note[] = JSON.parse(localStorage.getItem('notes')) || [];
+  notes: Note[] = JSON.parse(localStorage.getItem('notes') || '[]') as Note[];
   currentNote: Note | null = null;
-
   openModal(): void {
     this.modalVisible = true;
   }
@@ -163,9 +118,7 @@ export default class ContentPage extends Vue {
 }
 </script>
 
-
-
-<style scoped>
+<style >
 .main {
   display: flex;
   flex-direction: column;
