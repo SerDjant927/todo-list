@@ -1,10 +1,11 @@
 <template>
   <main class="main">
-    <NoteList :notes="notes" :filteredNotes="filteredNotes" :editNote="editNote" :createNote="createNote" />
-    <NoteModal :modalVisible="modalVisible" :currentNote="currentNote" :newTodoText="newTodoText" :addTodo="addTodo"
-      :saveNote="updateNote" :deleteTempTodo="deleteTempTodo" :cancelEdit="cancelEdit" />
-    <ConfirmModal :confirmModalVisible="confirmModalVisible" :confirmCancel="confirmCancel"
-      :closeConfirmModal="closeConfirmModal" />
+    <NoteList :filteredNotes="filteredNotes" :editNote="editNote" :createNote="createNote" />
+    <NoteModal :modalVisible="modalVisible" :currentNote="currentNote" :newTodoText="newTodoText" 
+               :addTodo="addTodo" :saveNote="updateNote" :deleteTempTodo="deleteTempTodo" 
+               :cancelEdit="cancelEdit" />
+    <ConfirmModal :confirmModalVisible="confirmModalVisible" :confirmCancel="confirmCancel" 
+                  :closeConfirmModal="closeConfirmModal" />
     <div class="modal-bg"></div>
   </main>
 </template>
@@ -14,12 +15,20 @@ import { Vue, Component } from 'vue-property-decorator'
 import NoteList from './NoteList.vue'
 import NoteModal from './NoteModal.vue'
 import ConfirmModal from './ConfirmModal.vue'
+import { mapGetters, mapActions } from 'vuex'
 import { Note, Todo } from './types'
+
 @Component({
   components: {
     NoteList,
     NoteModal,
     ConfirmModal
+  },
+  computed: {
+    ...mapGetters(['filteredNotes']) // Используем геттеры Vuex
+  },
+  methods: {
+    ...mapActions(['addNote', 'updateNote']), // Используем действия Vuex
   }
 })
 export default class ContentPage extends Vue {
@@ -27,8 +36,13 @@ export default class ContentPage extends Vue {
   modalNewNoteVisible: boolean = false;
   confirmModalVisible: boolean = false;
   newTodoText: string = '';
-  notes: Note[] = JSON.parse(localStorage.getItem('notes') || '[]') as Note[];
   currentNote: Note | null = null;
+
+  // Геттер для получения отфильтрованных заметок
+  get filteredNotes(): Note[] {
+    return this.$store.getters.filteredNotes;
+  }
+
   openModal(): void {
     this.modalVisible = true;
   }
@@ -67,13 +81,9 @@ export default class ContentPage extends Vue {
   }
 
   updateNote(): void {
-    const index = this.notes.findIndex(note => note.id === this.currentNote!.id);
-    if (index !== -1) {
-      this.notes.splice(index, 1, this.currentNote!);
-      this.currentNote = null;
-      this.modalVisible = false;
-      this.saveNotes();
-    }
+    this.$store.dispatch('updateNote', this.currentNote!);
+    this.currentNote = null;
+    this.modalVisible = false;
   }
 
   cancelEdit(): void {
@@ -91,34 +101,21 @@ export default class ContentPage extends Vue {
     this.confirmModalVisible = false;
   }
 
-  saveNotes(): void {
-    localStorage.setItem('notes', JSON.stringify(this.notes));
-  }
-
   saveNewNote(): void {
-    this.notes.push(this.currentNote!);
+    //this.addNote(this.currentNote!); // Используем действие для добавления новой заметки
     this.modalNewNoteVisible = false;
-    this.saveNotes();
-  }
-
-  loadFromLocalStorage(): void {
-    const savedNotes = localStorage.getItem('notes');
-    if (savedNotes) {
-      this.notes = JSON.parse(savedNotes);
-    }
-  }
-
-  get filteredNotes(): Note[] {
-    return this.notes.filter(note => note.todos.length > 0);
   }
 
   mounted(): void {
-    this.loadFromLocalStorage();
+    // Здесь больше ничего не нужно
   }
 }
 </script>
 
-<style >
+
+
+
+<style>
 .main {
   display: flex;
   flex-direction: column;
