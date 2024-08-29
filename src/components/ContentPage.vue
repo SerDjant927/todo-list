@@ -1,11 +1,11 @@
 <template>
   <main class="main">
     <NoteList :filteredNotes="filteredNotes" :editNote="editNote" :createNote="createNote" />
-    <NoteModal :modalVisible="modalVisible" :currentNote="currentNote" :newTodoText="newTodoText" 
-               :addTodo="addTodo" :saveNote="updateNote" :deleteTempTodo="deleteTempTodo" 
-               :cancelEdit="cancelEdit" />
-    <ConfirmModal :confirmModalVisible="confirmModalVisible" :confirmCancel="confirmCancel" 
-                  :closeConfirmModal="closeConfirmModal" />
+    <NoteModal  :saveNewNote="saveNewNote" :modalVisible="modalVisible" :modalNewNoteVisible="modalNewNoteVisible" :currentNote="currentNote"
+      :newTodoText="newTodoText" :addTodo="addTodo" :updateNote="updateNote" :deleteTempTodo="deleteTempTodo"
+      :cancelEdit="cancelEdit" />
+    <ConfirmModal :confirmModalVisible="confirmModalVisible" :confirmCancel="confirmCancel"
+      :closeConfirmModal="closeConfirmModal" />
     <div class="modal-bg"></div>
   </main>
 </template>
@@ -25,12 +25,13 @@ import { Note, Todo } from './types'
     ConfirmModal
   },
   computed: {
-    ...mapGetters(['filteredNotes']) // Используем геттеры Vuex
+    ...mapGetters(['filteredNotes'])
   },
   methods: {
-    ...mapActions(['addNote', 'updateNote']), // Используем действия Vuex
+    ...mapActions(['addNote', 'updateNote', 'createNote']),
   }
 })
+
 export default class ContentPage extends Vue {
   modalVisible: boolean = false;
   modalNewNoteVisible: boolean = false;
@@ -38,23 +39,33 @@ export default class ContentPage extends Vue {
   newTodoText: string = '';
   currentNote: Note | null = null;
 
-  // Геттер для получения отфильтрованных заметок
-  get filteredNotes(): Note[] {
-    return this.$store.getters.filteredNotes;
-  }
-
   openModal(): void {
     this.modalVisible = true;
   }
-
-  addTodo(): void {
-    if (this.newTodoText.trim() !== '') {
+  createNote(): void {
+    console.log('111');
+    this.modalNewNoteVisible = true;
+    this.modalVisible = false;
+    this.currentNote = {
+      id: Date.now(),
+      name: '',
+      todos: []
+    };
+    this.newTodoText = '';
+  }
+  saveNewNote(): void {
+    this.$store.dispatch('addNote', this.currentNote!); // Предполагается, что у вас есть метод для добавления заметки в store
+    this.currentNote = null;
+    this.modalNewNoteVisible = false;
+    this.modalVisible = false;
+  }
+  addTodo(todoText: string): void {
+    if (todoText.trim() !== '') {
       this.currentNote!.todos.push({
         id: Date.now(),
-        text: this.newTodoText,
+        text: todoText,
         completed: false
       });
-      this.newTodoText = '';
     }
   }
 
@@ -63,16 +74,6 @@ export default class ContentPage extends Vue {
     if (index !== -1) {
       this.currentNote!.todos.splice(index, 1);
     }
-  }
-
-  createNote(): void {
-    this.modalNewNoteVisible = true;
-    this.currentNote = {
-      id: Date.now(),
-      name: '',
-      todos: []
-    };
-    this.newTodoText = '';
   }
 
   editNote(note: Note): void {
@@ -101,19 +102,12 @@ export default class ContentPage extends Vue {
     this.confirmModalVisible = false;
   }
 
-  saveNewNote(): void {
-    //this.addNote(this.currentNote!); // Используем действие для добавления новой заметки
-    this.modalNewNoteVisible = false;
+  get filteredNotes(): Note[] {
+    return this.$store.getters.filteredNotes;
   }
 
-  mounted(): void {
-    // Здесь больше ничего не нужно
-  }
 }
 </script>
-
-
-
 
 <style>
 .main {
