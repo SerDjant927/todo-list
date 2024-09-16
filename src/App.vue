@@ -1,16 +1,16 @@
 <template>
   <div id="app">
-    <ContentPage/>
+    <MainFile/>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import ContentPage from './components/ContentPage.vue';
+import MainFile from './components/MainFile.vue';
 
 @Component({
   components: {
-    ContentPage
+    MainFile
   },
 })
 export default class App extends Vue {}

@@ -1,11 +1,22 @@
+// ContentPage.vue
 <template>
   <main class="main">
     <NoteList :filteredNotes="filteredNotes" :editNote="editNote" :createNote="createNote" />
-    <NoteModal  :saveNewNote="saveNewNote" :modalVisible="modalVisible" :modalNewNoteVisible="modalNewNoteVisible" :currentNote="currentNote"
-      :newTodoText="newTodoText" :addTodo="addTodo" :updateNote="updateNote" :deleteTempTodo="deleteTempTodo"
-      :cancelEdit="cancelEdit" />
-    <ConfirmModal :confirmModalVisible="confirmModalVisible" :confirmCancel="confirmCancel"
-      :closeConfirmModal="closeConfirmModal" />
+    <NoteModal 
+      :modalVisible="modalVisible" 
+      :modalNewNoteVisible="modalNewNoteVisible" 
+      :currentNote="currentNote"
+      :addTodo="addTodo" 
+      :updateNote="updateNote" 
+      :deleteTempTodo="deleteTempTodo"
+      :cancelEdit="cancelEdit" 
+      :saveNewNote="saveNewNote" 
+    />
+    <ConfirmModal 
+      :confirmModalVisible="confirmModalVisible" 
+      :confirmCancel="confirmCancel"
+      :closeConfirmModal="closeConfirmModal" 
+    />
     <div class="modal-bg"></div>
   </main>
 </template>
@@ -42,8 +53,8 @@ export default class ContentPage extends Vue {
   openModal(): void {
     this.modalVisible = true;
   }
+
   createNote(): void {
-    console.log('111');
     this.modalNewNoteVisible = true;
     this.modalVisible = false;
     this.currentNote = {
@@ -53,12 +64,16 @@ export default class ContentPage extends Vue {
     };
     this.newTodoText = '';
   }
+
   saveNewNote(): void {
-    this.$store.dispatch('addNote', this.currentNote!); // Предполагается, что у вас есть метод для добавления заметки в store
-    this.currentNote = null;
-    this.modalNewNoteVisible = false;
-    this.modalVisible = false;
+    if (this.currentNote) {
+      this.$store.dispatch('addNote', this.currentNote);
+      this.currentNote = null;
+      this.modalNewNoteVisible = false;
+      this.modalVisible = false;
+    }
   }
+
   addTodo(todoText: string): void {
     if (todoText.trim() !== '') {
       this.currentNote!.todos.push({
@@ -82,9 +97,11 @@ export default class ContentPage extends Vue {
   }
 
   updateNote(): void {
-    this.$store.dispatch('updateNote', this.currentNote!);
-    this.currentNote = null;
-    this.modalVisible = false;
+    if (this.currentNote) {
+      this.$store.dispatch('updateNote', this.currentNote);
+      this.currentNote = null;
+      this.modalVisible = false;
+    }
   }
 
   cancelEdit(): void {
@@ -105,11 +122,14 @@ export default class ContentPage extends Vue {
   get filteredNotes(): Note[] {
     return this.$store.getters.filteredNotes;
   }
-
 }
 </script>
 
+
 <style>
+*{
+  box-sizing: border-box;
+}
 .main {
   display: flex;
   flex-direction: column;
@@ -189,7 +209,7 @@ export default class ContentPage extends Vue {
   width: 100vw;
 }
 
-.modal+.modal-bg {
+.modal + .modal-bg {
   display: flex;
   z-index: 5;
   background-color: #2A3342;

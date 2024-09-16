@@ -5,23 +5,23 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    notes: JSON.parse(localStorage.getItem('notes')) || [] // Загружаем заметки из localStorage
+    notes: JSON.parse(localStorage.getItem('notes')) || [] 
   },
   mutations: {
     ADD_NOTE(state, note) {
       state.notes.push(note);
-      localStorage.setItem('notes', JSON.stringify(state.notes)); // Сохраняем заметки в localStorage
+      localStorage.setItem('notes', JSON.stringify(state.notes)); 
     },
     UPDATE_NOTE(state, updatedNote) {
       const index = state.notes.findIndex(note => note.id === updatedNote.id);
       if (index !== -1) {
         Vue.set(state.notes, index, updatedNote);
-        localStorage.setItem('notes', JSON.stringify(state.notes)); // Обновляем localStorage
+        localStorage.setItem('notes', JSON.stringify(state.notes)); 
       }
     },
     DELETE_NOTE(state, noteId) {
       state.notes = state.notes.filter(note => note.id !== noteId);
-      localStorage.setItem('notes', JSON.stringify(state.notes)); // Обновляем localStorage
+      localStorage.setItem('notes', JSON.stringify(state.notes)); 
     }
   },
   actions: {

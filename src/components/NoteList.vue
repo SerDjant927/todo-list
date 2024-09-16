@@ -2,7 +2,7 @@
   <div>
     <h1 class="title">Мои заметки</h1>
     <button class="create-button button" @click="createNote">Создать новую заметку</button>
-    <div v-for="note in filteredNotes" :key="note.id" class="note">
+    <div v-for="note in filteredNotes" :key="note.id" :id="note.id" class="note">
       <h2>{{ note.name }}</h2>
       <ul>
         <li v-for="todo in note.todos" :key="todo.id">
