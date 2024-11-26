@@ -5,10 +5,14 @@
     <div v-for="note in filteredNotes" :key="note.id" :id="note.id" class="note">
       <h2>{{ note.name }}</h2>
       <ul>
-        <li v-for="todo in note.todos" :key="todo.id">
-          <input type="checkbox" :id="todo.id" v-model="todo.completed">
-          <label :for="todo.id">{{ todo.text }}</label>
-        </li>
+        <draggable v-model="note.todos">
+          <template note.todos="{ element }">
+            <li v-for="todo in note.todos" :key="todo.id">
+              <input type="checkbox" :id="todo.id" v-model="todo.completed">
+              <label :for="todo.id">{{ todo.text }}</label>
+            </li>
+          </template>
+        </draggable>
       </ul>
       <button class="button button_edit" @click="editNote(note)">Редактировать</button>
     </div>
@@ -17,8 +21,16 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from 'vue-property-decorator';
-import { Note } from './types'; 
-@Component
+import { Note } from './types';
+import draggable from 'vuedraggable';
+@Component({
+  components: {
+    draggable,
+  },
+  methods: {
+    
+  },
+})
 export default class NoteList extends Vue {
   @Prop() notes!: Note[];
   @Prop() filteredNotes!: Note[];
@@ -26,5 +38,5 @@ export default class NoteList extends Vue {
   @Prop() editNote!: (note: Note) => void;
   @Prop() createNote!: () => void;
 }
-</script>
 
+</script>
